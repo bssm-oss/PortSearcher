@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1f2e"/>
+      <stop offset="100%" style="stop-color:#0d1117"/>
+    </linearGradient>
+    <linearGradient id="glow1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4f9eff"/>
+      <stop offset="100%" style="stop-color:#2d6fd4"/>
+    </linearGradient>
+    <linearGradient id="glow2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#64d2ff"/>
+      <stop offset="100%" style="stop-color:#4f9eff"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="24" flood-color="#4f9eff" flood-opacity="0.35"/>
+    </filter>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="roundRect">
+      <rect width="1024" height="1024" rx="224" ry="224"/>
+    </clipPath>
+  </defs>
+
+  <!-- 배경 rounded rect -->
+  <rect width="1024" height="1024" rx="224" ry="224" fill="url(#bg)"/>
+
+  <!-- 배경 미묘한 그리드 -->
+  <g opacity="0.06" clip-path="url(#roundRect)">
+    <line x1="0" y1="256" x2="1024" y2="256" stroke="#4f9eff" stroke-width="1"/>
+    <line x1="0" y1="512" x2="1024" y2="512" stroke="#4f9eff" stroke-width="1"/>
+    <line x1="0" y1="768" x2="1024" y2="768" stroke="#4f9eff" stroke-width="1"/>
+    <line x1="256" y1="0" x2="256" y2="1024" stroke="#4f9eff" stroke-width="1"/>
+    <line x1="512" y1="0" x2="512" y2="1024" stroke="#4f9eff" stroke-width="1"/>
+    <line x1="768" y1="0" x2="768" y2="1024" stroke="#4f9eff" stroke-width="1"/>
+  </g>
+
+  <!-- 허브 연결선 (뒤에 그리기) -->
+  <!-- 중앙 → 위 -->
+  <line x1="512" y1="512" x2="512" y2="240" stroke="#4f9eff" stroke-width="4" opacity="0.4"/>
+  <!-- 중앙 → 좌하 -->
+  <line x1="512" y1="512" x2="270" y2="680" stroke="#4f9eff" stroke-width="4" opacity="0.4"/>
+  <!-- 중앙 → 우하 -->
+  <line x1="512" y1="512" x2="754" y2="680" stroke="#4f9eff" stroke-width="4" opacity="0.4"/>
+  <!-- 중앙 → 좌 -->
+  <line x1="512" y1="512" x2="240" y2="440" stroke="#4f9eff" stroke-width="3" opacity="0.25"/>
+  <!-- 중앙 → 우 -->
+  <line x1="512" y1="512" x2="784" y2="440" stroke="#4f9eff" stroke-width="3" opacity="0.25"/>
+
+  <!-- 노드들 -->
+  <!-- 위 노드 -->
+  <circle cx="512" cy="228" r="34" fill="#1a2744" stroke="url(#glow2)" stroke-width="4" filter="url(#shadow)"/>
+  <circle cx="512" cy="228" r="14" fill="url(#glow2)" opacity="0.9"/>
+
+  <!-- 좌하 노드 -->
+  <circle cx="260" cy="686" r="30" fill="#1a2744" stroke="url(#glow1)" stroke-width="3.5" filter="url(#shadow)"/>
+  <circle cx="260" cy="686" r="12" fill="url(#glow1)" opacity="0.9"/>
+
+  <!-- 우하 노드 -->
+  <circle cx="764" cy="686" r="30" fill="#1a2744" stroke="url(#glow1)" stroke-width="3.5" filter="url(#shadow)"/>
+  <circle cx="764" cy="686" r="12" fill="url(#glow1)" opacity="0.9"/>
+
+  <!-- 좌 소노드 -->
+  <circle cx="228" cy="436" r="18" fill="#1a2744" stroke="#4f9eff" stroke-width="2.5" opacity="0.6"/>
+  <circle cx="228" cy="436" r="7" fill="#4f9eff" opacity="0.7"/>
+
+  <!-- 우 소노드 -->
+  <circle cx="796" cy="436" r="18" fill="#1a2744" stroke="#4f9eff" stroke-width="2.5" opacity="0.6"/>
+  <circle cx="796" cy="436" r="7" fill="#4f9eff" opacity="0.7"/>
+
+  <!-- 돋보기 (중앙, 메인 심볼) -->
+  <!-- 돋보기 원형 테두리 -->
+  <circle cx="490" cy="490" r="138" fill="none" stroke="url(#glow2)" stroke-width="38" filter="url(#shadow)" opacity="0.95"/>
+  <!-- 돋보기 내부 글로우 -->
+  <circle cx="490" cy="490" r="100" fill="#4f9eff" opacity="0.07"/>
+  <!-- 포트 번호 느낌 텍스트 -->
+  <text x="490" y="508" text-anchor="middle" dominant-baseline="middle"
+        font-family="-apple-system, SF Mono, monospace" font-size="72" font-weight="700"
+        fill="url(#glow2)" opacity="0.9">8080</text>
+  <!-- 돋보기 손잡이 -->
+  <line x1="594" y1="594" x2="700" y2="700" stroke="url(#glow2)" stroke-width="38" stroke-linecap="round" filter="url(#shadow)"/>
+
+</svg>

@@ -169,16 +169,16 @@ struct CheckResultBadge: View {
             switch result {
             case .available(let port):
                 Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
-                Text("포트 \(port) — 사용 가능").foregroundStyle(.green)
+                Text("포트 \(String(port)) — 사용 가능").foregroundStyle(.green)
                     .font(.system(size: 12, weight: .medium))
             case .inUse(let port, let name, let pid):
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 5) {
                         Image(systemName: "xmark.circle.fill").foregroundStyle(.red)
-                        Text("포트 \(port) — 사용 중").foregroundStyle(.red)
+                        Text("포트 \(String(port)) — 사용 중").foregroundStyle(.red)
                             .font(.system(size: 12, weight: .medium))
                     }
-                    Text("\(name)  ·  PID \(pid)")
+                    Text("\(name)  ·  PID \(String(pid))")
                         .font(.system(size: 11))
                         .foregroundStyle(.secondary)
                         .padding(.leading, 20)
@@ -277,7 +277,7 @@ struct PortRow: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            Text("\(info.port)")
+            Text(String(info.port))
                 .font(.system(size: 13, design: .monospaced).weight(.semibold))
                 .foregroundStyle(.primary)
                 .frame(width: 52, alignment: .leading)
@@ -288,7 +288,7 @@ struct PortRow: View {
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            Text("\(info.pid)")
+            Text(String(info.pid))
                 .font(.system(size: 11, design: .monospaced))
                 .foregroundStyle(.secondary)
                 .frame(width: 60, alignment: .trailing)
