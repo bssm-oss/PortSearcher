@@ -3,7 +3,7 @@
 set -e
 cd "$(dirname "$0")"
 
-VERSION="${1:-1.0.0}"
+VERSION="${1:-1.1.0}"
 echo "🚀 PortSearcher v$VERSION 릴리즈 빌드"
 echo ""
 
@@ -25,6 +25,14 @@ pkgbuild \
   "pts-$VERSION.pkg" 2>/dev/null
 
 echo "   ✅ pts-$VERSION.pkg"
+
+# Homebrew용 바이너리 tarball 생성
+rm -rf /tmp/pts-release && mkdir -p /tmp/pts-release
+cp .build/release/PortSearcherCLI /tmp/pts-release/pts
+cd /tmp/pts-release && tar -czf pts-arm64.tar.gz pts && cd -
+cp /tmp/pts-release/pts-arm64.tar.gz "pts-arm64.tar.gz"
+SHA=$(shasum -a 256 pts-arm64.tar.gz | awk '{print $1}')
+echo "   ✅ pts-arm64.tar.gz (SHA256: $SHA)"
 
 # ────────────────────────────────────────
 # 2. GUI 앱 빌드 & pkg
@@ -64,6 +72,7 @@ echo "4/4 GitHub Release 생성..."
 gh release create "v$VERSION" \
   "pts-$VERSION.pkg" \
   "PortSearcher-$VERSION.pkg" \
+  "pts-arm64.tar.gz" \
   --title "v$VERSION" \
   --notes "## 설치 방법
 

@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 
 APP_NAME="PortSearcher"
 BUNDLE="$APP_NAME.app"
-VERSION="1.0.0"
+VERSION="1.1.0"
 BUNDLE_ID="kr.imjemin.PortSearcherApp"
 
 SRC=(
@@ -59,9 +59,17 @@ cat > "$BUNDLE/Contents/Info.plist" << PLIST
     <true/>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
 </dict>
 </plist>
 PLIST
+
+echo "🖼️  아이콘 복사..."
+if [ -f "logo/AppIcon.icns" ]; then
+  cp "logo/AppIcon.icns" "$BUNDLE/Contents/Resources/AppIcon.icns"
+  echo "   ✅ AppIcon.icns 적용"
+fi
 
 echo "✅ 빌드 완료: $BUNDLE"
 echo ""
