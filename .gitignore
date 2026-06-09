@@ -1,0 +1,36 @@
+# Swift Package Manager
+.build/
+*.o
+*.d
+
+# Xcode
+*.xcodeproj/xcuserdata/
+*.xcworkspace/
+*.xcuserstate
+DerivedData/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xccheckout
+*.xcscmblueprint
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Build artifacts
+*.app
+*.dSYM/
+
+# Editor
+.swiftpm/
+.vscode/
+*.swp
+*~
