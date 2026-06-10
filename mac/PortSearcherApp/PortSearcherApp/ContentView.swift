@@ -129,6 +129,10 @@ struct MenuBarView: View {
             vm.refresh()
             vm.checkForUpdate()
         }
+        .onReceive(NotificationCenter.default.publisher(for: NSPopover.willShowNotification)) { _ in
+            vm.refresh()
+            vm.checkForUpdate()
+        }
     }
 }
 
@@ -388,6 +392,11 @@ struct UpdateBanner: View {
     let onUpdate: () -> Void
     let onDismiss: () -> Void
 
+    private var isFailed: Bool {
+        if case .failed = state { return true }
+        return false
+    }
+
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "arrow.down.circle.fill")
@@ -438,7 +447,7 @@ struct UpdateBanner: View {
                     .foregroundStyle(.white)
             }
 
-            if state == .idle || state == .failed("") {
+            if state == .idle || isFailed {
                 Button(action: onDismiss) {
                     Image(systemName: "xmark")
                         .font(.system(size: 10, weight: .semibold))
@@ -449,7 +458,7 @@ struct UpdateBanner: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 7)
-        .background(state == .failed("") ? Color.red : Color.accentColor)
+        .background(isFailed ? Color.red : Color.accentColor)
         .transition(.move(edge: .top).combined(with: .opacity))
         .animation(.easeInOut(duration: 0.2), value: state)
     }

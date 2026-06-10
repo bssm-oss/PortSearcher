@@ -134,9 +134,8 @@ default:
     }
 }
 
-// 업데이트 체크 결과 출력
-updateSema.wait()
-if let latest = latestVersion {
+// 업데이트 체크 결과 출력 (최대 100ms 대기)
+if updateSema.wait(timeout: .now() + 0.1) == .success, let latest = latestVersion {
     print("\n🆕 새 버전 v\(latest) 출시! (현재 v\(UpdateChecker.currentVersion))")
-    print("   brew install --HEAD https://raw.githubusercontent.com/gunobo/homebrew-tap/main/Formula/pts.rb")
+    print("   업데이트하려면: brew upgrade pts")
 }
