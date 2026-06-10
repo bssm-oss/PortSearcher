@@ -29,8 +29,14 @@ xcuserdata/
 *.app
 *.dSYM/
 
+# 배포 파일 (dist/)
+dist/*.pkg
+dist/*.tar.gz
+
 # Editor
 .swiftpm/
 .vscode/
 *.swp
 *~
+
+release.sh

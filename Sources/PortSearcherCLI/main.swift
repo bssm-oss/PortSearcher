@@ -4,6 +4,15 @@ import PortSearcherCore
 let scanner = PortScanner()
 let args = Array(CommandLine.arguments.dropFirst())
 
+// 업데이트 체크 (백그라운드)
+let updateQueue = DispatchQueue(label: "update-check")
+var latestVersion: String? = nil
+let updateSema = DispatchSemaphore(value: 0)
+updateQueue.async {
+    latestVersion = UpdateChecker().fetchLatestVersion()
+    updateSema.signal()
+}
+
 func printHelp() {
     print("""
     PortSearcher CLI
@@ -109,6 +118,8 @@ case "kill":
         print("❌ 종료 실패: \(errMsg ?? "알 수 없는 오류")")
         exit(1)
     }
+case "version", "--version", "-v":
+    print("pts v\(UpdateChecker.currentVersion)")
 case "help", "--help", "-h":
     printHelp()
 default:
@@ -119,4 +130,11 @@ default:
         printHelp()
         exit(1)
     }
+}
+
+// 업데이트 체크 결과 출력
+updateSema.wait()
+if let latest = latestVersion {
+    print("\n🆕 새 버전 v\(latest) 출시! (현재 v\(UpdateChecker.currentVersion))")
+    print("   brew install --HEAD https://raw.githubusercontent.com/gunobo/homebrew-tap/main/Formula/pts.rb")
 }

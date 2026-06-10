@@ -10,8 +10,10 @@ class PortViewModel: ObservableObject {
     @Published var checkResult: CheckResult? = nil
     @Published var isLoading = false
     @Published var searchText: String = ""
+    @Published var latestVersion: String? = nil
 
     private let scanner = PortScanner()
+    private let updater = UpdateChecker()
 
     enum CheckResult: Equatable {
         case available(UInt16)
@@ -35,6 +37,14 @@ class PortViewModel: ObservableObject {
             await MainActor.run {
                 self.activePorts = ports
                 self.isLoading = false
+            }
+        }
+    }
+
+    func checkForUpdate() {
+        updater.fetchLatestVersion { [weak self] version in
+            DispatchQueue.main.async {
+                self?.latestVersion = version
             }
         }
     }
@@ -93,6 +103,9 @@ struct MenuBarView: View {
     var body: some View {
         VStack(spacing: 0) {
             TopBar(vm: vm)
+            if let latest = vm.latestVersion {
+                UpdateBanner(latestVersion: latest) { vm.latestVersion = nil }
+            }
             Divider()
             CheckPanel(vm: vm)
             Divider()
@@ -102,7 +115,10 @@ struct MenuBarView: View {
         }
         .frame(width: 420, height: 520)
         .background(Color(nsColor: .windowBackgroundColor))
-        .onAppear { vm.refresh() }
+        .onAppear {
+            vm.refresh()
+            vm.checkForUpdate()
+        }
     }
 }
 
@@ -343,6 +359,43 @@ struct PortRow: View {
         .padding(.vertical, 6)
         .background(hovered ? Color(nsColor: .selectedContentBackgroundColor).opacity(0.15) : Color.clear)
         .onHover { hovered = $0 }
+    }
+}
+
+// MARK: - Update Banner
+
+struct UpdateBanner: View {
+    let latestVersion: String
+    let onDismiss: () -> Void
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "arrow.down.circle.fill")
+                .foregroundStyle(.white)
+            Text("새 버전 v\(latestVersion) 출시!")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(.white)
+            Spacer()
+            Button("업데이트") {
+                UpdateChecker.openReleasesPage()
+            }
+            .buttonStyle(.plain)
+            .font(.system(size: 11, weight: .semibold))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(.white.opacity(0.25), in: Capsule())
+            .foregroundStyle(.white)
+            Button(action: onDismiss) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.8))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 7)
+        .background(Color.accentColor)
+        .transition(.move(edge: .top).combined(with: .opacity))
     }
 }
 

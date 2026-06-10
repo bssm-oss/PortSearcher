@@ -17,21 +17,23 @@ rm -rf /tmp/pts-pkg
 mkdir -p /tmp/pts-pkg/usr/local/bin
 cp .build/release/PortSearcherCLI /tmp/pts-pkg/usr/local/bin/pts
 
+mkdir -p dist
+
 pkgbuild \
   --root /tmp/pts-pkg \
   --identifier kr.imjemin.pts \
   --version "$VERSION" \
   --install-location / \
-  "pts-$VERSION.pkg" 2>/dev/null
+  "dist/pts-$VERSION.pkg" 2>/dev/null
 
-echo "   ✅ pts-$VERSION.pkg"
+echo "   ✅ dist/pts-$VERSION.pkg"
 
 # Homebrew용 바이너리 tarball 생성
 rm -rf /tmp/pts-release && mkdir -p /tmp/pts-release
 cp .build/release/PortSearcherCLI /tmp/pts-release/pts
 cd /tmp/pts-release && tar -czf pts-arm64.tar.gz pts && cd -
-cp /tmp/pts-release/pts-arm64.tar.gz "pts-arm64.tar.gz"
-SHA=$(shasum -a 256 pts-arm64.tar.gz | awk '{print $1}')
+cp /tmp/pts-release/pts-arm64.tar.gz "dist/pts-arm64.tar.gz"
+SHA=$(shasum -a 256 dist/pts-arm64.tar.gz | awk '{print $1}')
 echo "   ✅ pts-arm64.tar.gz (SHA256: $SHA)"
 
 # ────────────────────────────────────────
@@ -60,9 +62,9 @@ pkgbuild \
   --identifier kr.imjemin.PortSearcherApp \
   --version "$VERSION" \
   --install-location / \
-  "PortSearcher-$VERSION.pkg" 2>/dev/null
+  "dist/PortSearcher-$VERSION.pkg" 2>/dev/null
 
-echo "   ✅ PortSearcher-$VERSION.pkg"
+echo "   ✅ dist/PortSearcher-$VERSION.pkg"
 
 # ────────────────────────────────────────
 # 3. git 태그
@@ -81,13 +83,22 @@ echo "   ✅ v$VERSION 태그 푸시 완료"
 echo "4/4 GitHub Release 생성..."
 
 gh release create "v$VERSION" \
-  "pts-$VERSION.pkg" \
-  "PortSearcher-$VERSION.pkg" \
-  "pts-arm64.tar.gz" \
+  "dist/pts-$VERSION.pkg" \
+  "dist/PortSearcher-$VERSION.pkg" \
+  "dist/pts-arm64.tar.gz" \
   --title "v$VERSION" \
   --notes "## 설치 방법
 
-pkg 파일 다운로드 후 더블클릭으로 설치
+### Homebrew (CLI)
+\`\`\`bash
+brew install --HEAD https://raw.githubusercontent.com/gunobo/homebrew-tap/main/Formula/pts.rb
+\`\`\`
+
+### pkg 직접 설치
+\`\`\`bash
+sudo installer -pkg pts-$VERSION.pkg -target /
+\`\`\`
+또는 pkg 파일 다운로드 후 더블클릭
 
 | 파일 | 설명 |
 |------|------|
@@ -100,8 +111,33 @@ pkg 파일 다운로드 후 더블클릭으로 설치
 \`\`\`
 pts               # 사용 중인 포트 목록
 pts check 8080    # 사용 가능 여부 확인
+pts kill 8080     # 포트 프로세스 강제 종료
 pts 3000          # 단축 명령
 \`\`\`" 2>&1
+
+# ────────────────────────────────────────
+# 5. Homebrew Formula 자동 갱신
+# ────────────────────────────────────────
+echo "5/5 Homebrew Formula 업데이트..."
+
+TAP_DIR="/tmp/homebrew-tap-release"
+rm -rf "$TAP_DIR"
+git clone https://github.com/gunobo/homebrew-tap.git "$TAP_DIR" -q
+
+SHA=$(shasum -a 256 dist/pts-arm64.tar.gz | awk '{print $1}')
+sed -i '' \
+  -e "s|url \".*\"|url \"https://github.com/gunobo/PortSearcher/releases/download/v$VERSION/pts-arm64.tar.gz\"|" \
+  -e "s|sha256 \".*\"|sha256 \"$SHA\"|" \
+  -e "s|version \".*\"|version \"$VERSION\"|" \
+  "$TAP_DIR/Formula/pts.rb"
+
+cd "$TAP_DIR"
+git add Formula/pts.rb
+git commit -m "update pts to v$VERSION" -q
+git push -q
+cd -
+
+echo "   ✅ homebrew-tap Formula 업데이트 완료"
 
 echo ""
 echo "🎉 완료! https://github.com/gunobo/PortSearcher/releases/tag/v$VERSION"
