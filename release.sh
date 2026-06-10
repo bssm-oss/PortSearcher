@@ -41,6 +41,10 @@ echo "   ✅ pts-arm64.tar.gz (SHA256: $SHA)"
 # ────────────────────────────────────────
 echo "2/4 GUI 앱 빌드..."
 sed -i '' "s/VERSION=\".*\"/VERSION=\"$VERSION\"/" build-app.sh
+# UpdateChecker 버전 자동 갱신
+sed -i '' "s/currentVersion = \".*\"/currentVersion = \"$VERSION\"/" \
+  PortSearcherApp/PortSearcherApp/UpdateChecker.swift \
+  Sources/PortSearcherCore/UpdateChecker.swift
 ./build-app.sh 2>/dev/null
 
 # rsync로 ._ AppleDouble 파일 완전 제외 후 복사

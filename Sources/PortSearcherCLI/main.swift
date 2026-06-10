@@ -35,13 +35,15 @@ func listActivePorts() {
     let header = "PORT    ".padding(toLength: 8, withPad: " ", startingAt: 0)
         + "PID       ".padding(toLength: 10, withPad: " ", startingAt: 0)
         + "PROTO   ".padding(toLength: 8, withPad: " ", startingAt: 0)
+        + "UPTIME    ".padding(toLength: 10, withPad: " ", startingAt: 0)
         + "PROCESS"
     print(header)
-    print(String(repeating: "-", count: 44))
+    print(String(repeating: "-", count: 54))
     for info in ports {
         let line = "\(info.port)".padding(toLength: 8, withPad: " ", startingAt: 0)
             + "\(info.pid)".padding(toLength: 10, withPad: " ", startingAt: 0)
             + info.proto.padding(toLength: 8, withPad: " ", startingAt: 0)
+            + info.uptime.padding(toLength: 10, withPad: " ", startingAt: 0)
             + info.processName
         print(line)
     }

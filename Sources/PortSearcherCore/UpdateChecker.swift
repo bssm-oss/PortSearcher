@@ -1,7 +1,7 @@
 import Foundation
 
 public struct UpdateChecker: Sendable {
-    public static let currentVersion = "1.2.0"
+    public static let currentVersion = "1.4.0"
     private static let apiURL = "https://api.github.com/repos/bssm-oss/PortSearcher/releases/latest"
     private static let releasesURL = "https://github.com/bssm-oss/PortSearcher/releases/latest"
 

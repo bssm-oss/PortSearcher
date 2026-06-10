@@ -11,6 +11,7 @@ class PortViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var searchText: String = ""
     @Published var latestVersion: String? = nil
+    @Published var updateState: UpdateState = .idle
 
     private let scanner = PortScanner()
     private let updater = UpdateChecker()
@@ -46,6 +47,13 @@ class PortViewModel: ObservableObject {
             DispatchQueue.main.async {
                 self?.latestVersion = version
             }
+        }
+    }
+
+    func startUpdate() {
+        guard let version = latestVersion else { return }
+        updater.downloadAndInstall(version: version) { [weak self] state in
+            self?.updateState = state
         }
     }
 
@@ -104,7 +112,9 @@ struct MenuBarView: View {
         VStack(spacing: 0) {
             TopBar(vm: vm)
             if let latest = vm.latestVersion {
-                UpdateBanner(latestVersion: latest) { vm.latestVersion = nil }
+                UpdateBanner(latestVersion: latest, state: vm.updateState,
+                             onUpdate: { vm.startUpdate() },
+                             onDismiss: { vm.latestVersion = nil; vm.updateState = .idle })
             }
             Divider()
             CheckPanel(vm: vm)
@@ -278,6 +288,7 @@ struct PortList: View {
                 Text("PROCESS").frame(maxWidth: .infinity, alignment: .leading)
                 Text("PID").frame(width: 60, alignment: .trailing)
                 Text("PROTO").frame(width: 48, alignment: .trailing)
+                Text("UPTIME").frame(width: 52, alignment: .trailing)
             }
             .font(.system(size: 10, weight: .semibold))
             .foregroundStyle(.tertiary)
@@ -342,7 +353,14 @@ struct PortRow: View {
                 .padding(.horizontal, 5)
                 .padding(.vertical, 2)
                 .background(Color.accentColor.opacity(0.15), in: Capsule())
-                .frame(width: 52, alignment: .trailing)
+                .frame(width: 48, alignment: .trailing)
+
+            if !info.uptime.isEmpty {
+                Text(info.uptime)
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(.tertiary)
+                    .frame(width: 52, alignment: .trailing)
+            }
 
             // 강제 종료 버튼 (hover 시 표시)
             Button(action: onKill) {
@@ -366,36 +384,74 @@ struct PortRow: View {
 
 struct UpdateBanner: View {
     let latestVersion: String
+    let state: UpdateState
+    let onUpdate: () -> Void
     let onDismiss: () -> Void
 
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "arrow.down.circle.fill")
                 .foregroundStyle(.white)
-            Text("새 버전 v\(latestVersion) 출시!")
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(.white)
-            Spacer()
-            Button("업데이트") {
-                UpdateChecker.openReleasesPage()
+
+            switch state {
+            case .idle:
+                Text("새 버전 v\(latestVersion) 출시!")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.white)
+                Spacer()
+                Button("자동 업데이트") { onUpdate() }
+                    .buttonStyle(.plain)
+                    .font(.system(size: 11, weight: .semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(.white.opacity(0.25), in: Capsule())
+                    .foregroundStyle(.white)
+
+            case .downloading(let progress):
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("다운로드 중... \(Int(progress * 100))%")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(.white)
+                    ProgressView(value: progress)
+                        .tint(.white)
+                        .frame(maxWidth: .infinity)
+                }
+                Spacer()
+
+            case .ready:
+                Text("설치 중... 잠시 후 앱이 종료됩니다")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.white)
+                Spacer()
+
+            case .failed(let msg):
+                Text("실패: \(msg)")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.white)
+                Spacer()
+                Button("재시도") { onUpdate() }
+                    .buttonStyle(.plain)
+                    .font(.system(size: 11, weight: .semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(.white.opacity(0.25), in: Capsule())
+                    .foregroundStyle(.white)
             }
-            .buttonStyle(.plain)
-            .font(.system(size: 11, weight: .semibold))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 3)
-            .background(.white.opacity(0.25), in: Capsule())
-            .foregroundStyle(.white)
-            Button(action: onDismiss) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.8))
+
+            if state == .idle || state == .failed("") {
+                Button(action: onDismiss) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.8))
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 7)
-        .background(Color.accentColor)
+        .background(state == .failed("") ? Color.red : Color.accentColor)
         .transition(.move(edge: .top).combined(with: .opacity))
+        .animation(.easeInOut(duration: 0.2), value: state)
     }
 }
 
