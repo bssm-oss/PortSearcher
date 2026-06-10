@@ -236,7 +236,8 @@ namespace PortSearcherWin.GUI
         // 트레이 클릭 시 팝업 열기
         public async void ShowPopup()
         {
-            var workingArea = Screen.PrimaryScreen!.WorkingArea;
+            var activeScreen = Screen.FromPoint(Cursor.Position) ?? Screen.PrimaryScreen;
+            var workingArea = activeScreen!.WorkingArea;
             int x = workingArea.Right - this.Width - 10;
             int y = workingArea.Bottom - this.Height - 10;
 
@@ -364,8 +365,8 @@ namespace PortSearcherWin.GUI
 
                 if (portCell == null || pidCell == null) return;
 
-                ushort port = (ushort)portCell;
-                int pid = (int)pidCell;
+                ushort port = Convert.ToUInt16(portCell);
+                int pid = Convert.ToInt32(pidCell);
                 string processName = nameCell?.ToString() ?? "Unknown";
 
                 var confirmResult = MessageBox.Show(

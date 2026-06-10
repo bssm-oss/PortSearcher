@@ -52,6 +52,9 @@ public struct PortScanner {
             let proto = String(parts[7])
             let addressField = String(parts[8])
 
+            // 아웃바운드 연결(-> 포함)은 로컬 LISTEN/바인딩 포트가 아니므로 제외
+            if addressField.contains("->") { continue }
+
             // 포트 파싱: "*.8080" or "127.0.0.1:8080" or "[::]:8080"
             guard let portStr = addressField.split(separator: ":").last,
                   let port = UInt16(portStr) else { continue }
@@ -116,6 +119,7 @@ public struct PortScanner {
         defer { close(sock) }
 
         var addr = sockaddr_in()
+        memset(&addr, 0, MemoryLayout<sockaddr_in>.size)
         addr.sin_family = sa_family_t(AF_INET)
         addr.sin_port = port.bigEndian
         addr.sin_addr.s_addr = INADDR_ANY

@@ -18,6 +18,7 @@ struct UpdateChecker {
         guard let url = URL(string: Self.apiURL) else { completion(nil); return }
         var request = URLRequest(url: url, timeoutInterval: 5)
         request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
+        request.setValue("PortSearcher", forHTTPHeaderField: "User-Agent")
         URLSession.shared.dataTask(with: request) { data, _, _ in
             guard let data,
                   let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],

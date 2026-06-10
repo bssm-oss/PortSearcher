@@ -13,6 +13,7 @@ public struct UpdateChecker: Sendable {
 
         var request = URLRequest(url: url, timeoutInterval: 5)
         request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
+        request.setValue("PortSearcher", forHTTPHeaderField: "User-Agent")
 
         var result: String? = nil
         let sema = DispatchSemaphore(value: 0)
@@ -37,7 +38,10 @@ public struct UpdateChecker: Sendable {
 
     /// CLI용: open 명령으로 브라우저 열기
     public static func openReleasesPage() {
-        Process.launchedProcess(launchPath: "/usr/bin/open", arguments: [releasesURL])
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+        process.arguments = [releasesURL]
+        try? process.run()
     }
 
     // "1.2.0" > "1.1.0" 비교

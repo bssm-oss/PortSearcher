@@ -87,12 +87,12 @@ namespace PortSearcherWin.CLI
                     break;
             }
 
-            // 업데이트 체크 완료 대기 및 알림 (최대 1.5초 대기)
+            // 업데이트 체크 완료 대기 및 알림 (최대 100ms 대기)
             if (_updateCheckTask != null)
             {
                 try
                 {
-                    await Task.WhenAny(_updateCheckTask, Task.Delay(1500));
+                    await Task.WhenAny(_updateCheckTask, Task.Delay(100));
                 }
                 catch { /* 백그라운드 태스크 예외 무시 */ }
             }

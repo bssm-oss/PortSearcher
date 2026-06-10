@@ -50,7 +50,7 @@ namespace PortSearcherWin.Core
                     FileName = "netstat.exe",
                     Arguments = "-ano",
                     RedirectStandardOutput = true,
-                    RedirectStandardError = true,
+                    RedirectStandardError = false,
                     UseShellExecute = false,
                     CreateNoWindow = true
                 };
