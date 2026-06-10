@@ -96,8 +96,11 @@ gh release create "v$VERSION" \
 
 ### Homebrew (CLI)
 \`\`\`bash
-brew install --HEAD https://raw.githubusercontent.com/gunobo/homebrew-tap/main/Formula/pts.rb
+brew tap gunobo/tap
+brew install pts
 \`\`\`
+
+업데이트: \`brew upgrade pts\`
 
 ### pkg 직접 설치
 \`\`\`bash

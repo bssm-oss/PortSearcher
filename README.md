@@ -27,6 +27,8 @@ brew tap gunobo/tap
 brew install pts
 ```
 
+> 업데이트: `brew upgrade pts`
+
 ### pkg 직접 설치
 
 [GitHub Releases](https://github.com/bssm-oss/PortSearcher/releases/latest)에서 pkg 파일 다운로드 후 더블클릭
