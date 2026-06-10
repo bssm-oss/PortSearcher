@@ -9,10 +9,11 @@ func printHelp() {
     PortSearcher CLI
 
     사용법:
-      portsearcher                  현재 사용 중인 포트 목록 출력
-      portsearcher check <포트번호>  특정 포트 사용 가능 여부 확인
-      portsearcher info  <포트번호>  해당 포트를 사용 중인 프로세스 정보
-      portsearcher help             도움말
+      pts                    현재 사용 중인 포트 목록 출력
+      pts check <포트번호>   특정 포트 사용 가능 여부 확인
+      pts info  <포트번호>   해당 포트를 사용 중인 프로세스 정보
+      pts kill  <포트번호>   해당 포트 프로세스 강제 종료
+      pts help               도움말
     """)
 }
 
@@ -87,6 +88,27 @@ case "info":
         exit(1)
     }
     portInfo(String(port))
+case "kill":
+    guard let portStr = args.dropFirst().first else {
+        print("오류: 포트 번호를 입력하세요. 예: pts kill 8080")
+        exit(1)
+    }
+    guard let port = UInt16(portStr) else {
+        print("오류: '\(portStr)'은(는) 올바른 포트 번호가 아닙니다.")
+        exit(1)
+    }
+    guard let info = scanner.processUsing(port: port) else {
+        print("포트 \(port)는 사용 중이지 않습니다.")
+        exit(0)
+    }
+    print("종료 대상: \(info.processName) (PID: \(info.pid)) — 포트 \(port)")
+    let (success, errMsg) = scanner.killProcess(pid: info.pid)
+    if success {
+        print("✅ 프로세스 종료 완료")
+    } else {
+        print("❌ 종료 실패: \(errMsg ?? "알 수 없는 오류")")
+        exit(1)
+    }
 case "help", "--help", "-h":
     printHelp()
 default:

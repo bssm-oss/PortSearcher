@@ -91,4 +91,21 @@ public struct PortScanner {
     public func processUsing(port: UInt16) -> PortInfo? {
         activePorts().first { $0.port == port }
     }
+
+    // PID 프로세스 강제 종료 (SIGKILL)
+    // 반환: (success, errorMessage)
+    @discardableResult
+    public func killProcess(pid: Int32) -> (Bool, String?) {
+        if Foundation.kill(pid, SIGKILL) == 0 {
+            return (true, nil)
+        } else {
+            let msg: String
+            switch errno {
+            case EPERM:  msg = "권한 없음 — sudo 필요"
+            case ESRCH:  msg = "프로세스가 이미 종료됨"
+            default:     msg = String(cString: strerror(errno))
+            }
+            return (false, msg)
+        }
+    }
 }

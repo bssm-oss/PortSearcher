@@ -40,12 +40,23 @@ echo "   ✅ pts-arm64.tar.gz (SHA256: $SHA)"
 echo "2/4 GUI 앱 빌드..."
 ./build-app.sh 2>/dev/null
 
+# rsync로 ._ AppleDouble 파일 완전 제외 후 복사
 rm -rf /tmp/portsearcher-app
 mkdir -p /tmp/portsearcher-app/Applications
-cp -R PortSearcher.app /tmp/portsearcher-app/Applications/
+rsync -a --exclude='._*' --exclude='.DS_Store' PortSearcher.app/ /tmp/portsearcher-app/Applications/PortSearcher.app/
+
+# 임시 서명 (Apple Developer 인증서 없을 때 ad-hoc)
+codesign --deep --force --sign - /tmp/portsearcher-app/Applications/PortSearcher.app 2>/dev/null || true
+
+# 컴포넌트 plist 생성 후 BundleIsRelocatable=false 로 강제
+#  → installer가 기존 앱을 찾아 다른 위치에 덮어쓰는 relocation 방지
+pkgbuild --analyze --root /tmp/portsearcher-app /tmp/ps-component.plist 2>/dev/null
+plutil -replace BundleIsRelocatable -bool false /tmp/ps-component.plist 2>/dev/null || \
+  /usr/libexec/PlistBuddy -c "Set :0:BundleIsRelocatable false" /tmp/ps-component.plist
 
 pkgbuild \
   --root /tmp/portsearcher-app \
+  --component-plist /tmp/ps-component.plist \
   --identifier kr.imjemin.PortSearcherApp \
   --version "$VERSION" \
   --install-location / \

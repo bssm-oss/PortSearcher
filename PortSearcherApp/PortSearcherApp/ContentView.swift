@@ -39,6 +39,32 @@ class PortViewModel: ObservableObject {
         }
     }
 
+    func killPort(_ info: PortInfo) {
+        let alert = NSAlert()
+        alert.messageText = "포트 \(info.port) 프로세스를 종료할까요?"
+        alert.informativeText = "\(info.processName) (PID: \(info.pid))를 강제 종료합니다."
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "종료")
+        alert.addButton(withTitle: "취소")
+        alert.buttons[0].hasDestructiveAction = true
+
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+
+        let (success, errMsg) = scanner.killProcess(pid: info.pid)
+        if success {
+            // 잠깐 대기 후 새로고침 (프로세스 종료 반영)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                self.refresh()
+            }
+        } else {
+            let err = NSAlert()
+            err.messageText = "종료 실패"
+            err.informativeText = errMsg ?? "알 수 없는 오류"
+            err.alertStyle = .critical
+            err.runModal()
+        }
+    }
+
     func checkPort() {
         let raw = checkInput.trimmingCharacters(in: .whitespaces)
         guard let port = UInt16(raw), port > 0 else {
@@ -255,7 +281,7 @@ struct PortList: View {
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach(vm.filteredPorts) { info in
-                            PortRow(info: info)
+                            PortRow(info: info, onKill: { vm.killPort(info) })
                                 .contentShape(Rectangle())
                                 .onTapGesture {
                                     vm.checkInput = "\(info.port)"
@@ -273,6 +299,7 @@ struct PortList: View {
 
 struct PortRow: View {
     let info: PortInfo
+    let onKill: () -> Void
     @State private var hovered = false
 
     var body: some View {
@@ -300,6 +327,17 @@ struct PortRow: View {
                 .padding(.vertical, 2)
                 .background(Color.accentColor.opacity(0.15), in: Capsule())
                 .frame(width: 52, alignment: .trailing)
+
+            // 강제 종료 버튼 (hover 시 표시)
+            Button(action: onKill) {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 14))
+                    .foregroundStyle(.red.opacity(0.8))
+            }
+            .buttonStyle(.plain)
+            .frame(width: 28)
+            .opacity(hovered ? 1 : 0)
+            .help("프로세스 강제 종료")
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
