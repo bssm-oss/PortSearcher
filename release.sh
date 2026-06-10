@@ -40,6 +40,7 @@ echo "   ✅ pts-arm64.tar.gz (SHA256: $SHA)"
 # 2. GUI 앱 빌드 & pkg
 # ────────────────────────────────────────
 echo "2/4 GUI 앱 빌드..."
+sed -i '' "s/VERSION=\".*\"/VERSION=\"$VERSION\"/" build-app.sh
 ./build-app.sh 2>/dev/null
 
 # rsync로 ._ AppleDouble 파일 완전 제외 후 복사

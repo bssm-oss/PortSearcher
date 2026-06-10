@@ -5,11 +5,12 @@ cd "$(dirname "$0")"
 
 APP_NAME="PortSearcher"
 BUNDLE="$APP_NAME.app"
-VERSION="1.1.0"
+VERSION="1.3.0"
 BUNDLE_ID="kr.imjemin.PortSearcherApp"
 
 SRC=(
   "PortSearcherApp/PortSearcherApp/PortScanner.swift"
+  "PortSearcherApp/PortSearcherApp/UpdateChecker.swift"
   "PortSearcherApp/PortSearcherApp/ContentView.swift"
   "PortSearcherApp/PortSearcherApp/PortSearcherApp.swift"
 )
