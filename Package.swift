@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "PortSearcher",
-    platforms: [.macOS(.v13)],
+
     targets: [
         .target(
             name: "PortSearcherCore",
