@@ -118,7 +118,7 @@ public struct PortScanner {
 
     // 포트가 사용 가능한지 확인 (TCP 바인딩 시도)
     public func isPortAvailable(_ port: UInt16) -> Bool {
-        let sock = socket(AF_INET, SOCK_STREAM, 0)
+        let sock = socket(AF_INET, Int32(SOCK_STREAM.rawValue), 0)
         guard sock >= 0 else { return false }
         defer { close(sock) }
 

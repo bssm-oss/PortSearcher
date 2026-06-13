@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 public struct UpdateChecker: Sendable {
     public static let currentVersion = "1.4.0"
