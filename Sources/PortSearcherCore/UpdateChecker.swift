@@ -35,9 +35,13 @@ public struct UpdateChecker: Sendable {
 
     public static var releasesPageURL: String { releasesURL }
 
-    /// CLI용: open 명령으로 브라우저 열기
+    /// CLI용: 브라우저 열기 (macOS: open, Linux: xdg-open)
     public static func openReleasesPage() {
+        #if os(macOS)
         Process.launchedProcess(launchPath: "/usr/bin/open", arguments: [releasesURL])
+        #else
+        Process.launchedProcess(launchPath: "/usr/bin/xdg-open", arguments: [releasesURL])
+        #endif
     }
 
     // "1.2.0" > "1.1.0" 비교

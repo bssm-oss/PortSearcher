@@ -1,5 +1,4 @@
 import Foundation
-import Network
 
 public struct PortInfo: Identifiable, Sendable {
     public let id = UUID()
@@ -21,10 +20,18 @@ public struct PortInfo: Identifiable, Sendable {
 public struct PortScanner {
     public init() {}
 
+    #if os(macOS)
+    private static let lsofPath = "/usr/sbin/lsof"
+    private static let psPath   = "/bin/ps"
+    #else
+    private static let lsofPath = "/usr/bin/lsof"
+    private static let psPath   = "/usr/bin/ps"
+    #endif
+
     // lsof 로 현재 사용 중인 포트 목록 가져오기
     public func activePorts() -> [PortInfo] {
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/sbin/lsof")
+        process.executableURL = URL(fileURLWithPath: Self.lsofPath)
         process.arguments = ["-iTCP", "-iUDP", "-n", "-P", "-sTCP:LISTEN"]
 
         let pipe = Pipe()
@@ -78,7 +85,7 @@ public struct PortScanner {
 
     private func runPs(pid: Int32, format: String) -> String? {
         let ps = Process()
-        ps.executableURL = URL(fileURLWithPath: "/bin/ps")
+        ps.executableURL = URL(fileURLWithPath: Self.psPath)
         ps.arguments = ["-ww", "-p", "\(pid)", "-o", format]
         let pipe = Pipe()
         ps.standardOutput = pipe

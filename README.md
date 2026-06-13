@@ -164,8 +164,24 @@ sudo cp .build/release/PortSearcherCLI /usr/local/bin/pts
 
 ## 요구사항
 
-- macOS 13 (Ventura) 이상
-- Swift 5.9 이상
+| 환경 | CLI (`pts`) | GUI 메뉴바 앱 |
+|------|:-----------:|:------------:|
+| macOS 13+ | ✅ | ✅ |
+| Linux (Ubuntu / Raspberry Pi) | ✅ | ❌ |
+
+- Swift 5.9+
+- Linux: `sudo apt install lsof` 필요
+
+### Linux / Raspberry Pi 설치
+
+```bash
+# Swift 설치 (swift.org 참고)
+# 소스 빌드
+git clone https://github.com/bssm-oss/PortSearcher.git
+cd PortSearcher
+swift build -c release
+sudo cp .build/release/PortSearcherCLI /usr/local/bin/pts
+```
 
 ---
 
